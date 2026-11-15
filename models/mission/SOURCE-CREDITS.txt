@@ -1,0 +1,60 @@
+TerraMind mission visualization — InSight lander asset
+
+Local file: /models/mission/lander.glb
+Model: InSight Cruise Lander (arm deployed)
+Credit: NASA/Brian E. Kumanchik
+Source: https://science.nasa.gov/3d-resources/insight-cruise-lander/
+Original GLB: https://assets.science.nasa.gov/content/dam/science/cds/3d/resources/model/insight-cruise-lander/InSight%20Cruise%20Lander%20%28arm%20deployed%29.glb
+NASA usage guidelines: https://www.nasa.gov/nasa-brand-center/images-and-media/
+Downloaded: 2026-11-15
+
+Modification: Draco-compressed geometry decoded offline with the Draco decoder
+distributed in the project's installed Three.js dependency. Geometry, materials,
+embedded textures, and model transforms retained. The delivered GLB requires no
+Draco browser decoder or external texture requests. This model was not generated
+by AI. The surrounding interactive mission is an illustrative simulation.
+
+Original asset size: 3,949,036 bytes.
+Delivered uncompressed asset size: 11,585,848 bytes.
+Geometry: 100 meshes, 143 primitives, 146,890 triangles, 11 materials.
+Texture assets: 22 embedded images (WebP with JPEG fallbacks).
+Remaining optional extensions: EXT_texture_webp, KHR_materials_unlit.
+
+PHYSICAL SCALE
+NASA spacecraft specifications: https://science.nasa.gov/mission/insight/spacecraft/
+Deployed solar-array wingspan: 6 m.
+Lander deck diameter: 1.56 m.
+Deck height: 0.83 to 1.08 m.
+Robotic arm length: 1.8 m.
+Solar-panel diameter: about 2.2 m each.
+The 6 m dimension is wingspan, not height.
+
+The model uses Y-up coordinates and spans approximately 6.141816 units along X.
+Normalize deployed wingspan to 6 m with scale = 6 / 6.1418155006541255.
+Model height including the deployed arm is approximately 2.187927 model units;
+this is a geometry measurement, not a separately verified spacecraft specification.
+Model bounding min = [-3.070677895, -0.635891006, -1.704498465].
+Model bounding max = [ 3.071137606,  1.552035978,  1.796571387].
+Bounding boxes were calculated through the full scene-node hierarchy.
+
+THREE LANDING-PAD CONTACTS
+Unscaled model world coordinates. X/Z centers average unique vertices within
+2 mm of each pad's lowest vertex; Y below uses the lowest contact point.
+leg_b: [ 0.001101610, -0.635890998, -1.273593592]
+leg_l: [-1.103515012, -0.635891006,  0.635845223]
+leg_r: [ 1.102413322, -0.635891006,  0.637749872]
+Apply the same scale and model origin adjustments to contact points and geometry.
+
+This model represents InSight, which actually has three landing legs. Placement
+on other selected terrain is a visual scenario and must not imply a real mission
+occurred there or establish safe landing conditions from insufficient DEM detail.
+No NASA affiliation or endorsement is implied.
+
+TERRAMIND TM-01 ROCKET CONCEPT
+The 18 m TerraMind expedition rocket is an original AI-assisted, code-built
+concept in src/components/mission/RocketModel.tsx, not a NASA vehicle or a
+flight-qualified design. Metal, thermal-tile and lettering textures are generated
+locally. Descent, exhaust, dust, takeoff and terrain flight are illustrative
+animations, not a validated flight-dynamics or landing-safety calculation.
+The measured DEM remains at metre scale; sub-grid material detail is illustrative.
+The interactive scene carries the visible label "AI-generated".

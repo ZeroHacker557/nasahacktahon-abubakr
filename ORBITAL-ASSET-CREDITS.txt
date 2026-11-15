@@ -1,0 +1,53 @@
+TerraMind orbital landing — image sources and credits
+Prepared 2026-11-15
+
+SPACE BACKGROUND
+Local asset: /textures/orbital/space-background.jpg
+Title: The Milky Way panorama (eso0932a)
+Credit: ESO/S. Brunier
+Source: https://www.eso.org/public/images/eso0932a/
+Downloaded file: https://cdn.eso.org/images/publicationjpg/eso0932a.jpg
+License: Creative Commons Attribution 4.0 International
+License URL: https://creativecommons.org/licenses/by/4.0/
+ESO usage terms: https://www.eso.org/public/outreach/copyright/
+Changes: resized to 2560 x 1280; JPEG compression for web delivery.
+The photograph is displayed with layout cropping and dark overlays in the landing page.
+This is a real photographic panorama, not an AI-generated sky.
+The visible page must retain the linked credit ESO/S. Brunier.
+
+MOON COLOR MAPS
+Local assets: /textures/orbital/moon-2k.jpg and /textures/orbital/moon-4k.jpg
+Title: CGI Moon Kit — 2019 LROC color map
+Credit: NASA's Scientific Visualization Studio
+Visualizer: Ernie Wright (STC)
+Source: https://svs.gsfc.nasa.gov/4720/
+Downloaded file: https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/lroc_color_poles_4k.tif
+Data origin: Lunar Reconnaissance Orbiter Camera (LROC), Arizona State University;
+polar color coverage supplemented from LRO LOLA monochromatic albedo.
+Usage: NASA reproduction guidelines apply; source image has no separate third-party copyright notice.
+Guidelines: https://www.nasa.gov/nasa-brand-center/images-and-media/
+Changes: TIFF converted to JPEG at 4096 x 2048; 2048 x 1024 derivative resized with Lanczos.
+The map is centered on 0 degrees longitude. NASA describes these visual texture maps
+as optimized for aesthetics, not science; they are not the landing page's analytical DEM data.
+
+No endorsement by NASA, ESO, or the image creators is implied.
+Existing Mars texture credits remain in /ASSET-CREDITS.txt.
+
+SPACECRAFT 3D MODEL (replaces the earlier procedural satellite)
+Local asset: /models/mro-nasa.glb
+Title: Mars Reconnaissance Orbiter, 3D Model
+Credit: NASA/JPL-Caltech
+Source: https://science.nasa.gov/resource/mars-reconnaissance-orbiter-3d-model/
+Original GLB: https://assets.science.nasa.gov/content/dam/science/psd/mars/resources/gltf_files/24884_MRO.glb
+Source page model date: April 27, 2019; download listing March 8, 2024.
+Downloaded 2026-11-15. File size: 4,408,164 bytes.
+SHA-256: A9EC9E883BB1ABBB202A671DBF882A529DC78A74BF9CAC517E7A71C82FB28225
+Original mesh: 14 meshes, 14,777 triangles, eight embedded texture images;
+includes original color maps and crumpled thermal-blanket normal maps.
+The local GLB binary is unchanged from NASA. Runtime display changes: model scale,
+orientation, camera placement, material roughness/metalness and light intensity;
+fully transparent source helper cubes hidden. No fictional neon optics added.
+This is a NASA spacecraft visualization model, not a photograph or live spacecraft feed.
+The Moon/Mars scanning transition is an illustrative TerraMind interaction.
+NASA media usage guidance: https://www.nasa.gov/nasa-brand-center/images-and-media/
+No affiliation with or endorsement by NASA/JPL-Caltech is implied.

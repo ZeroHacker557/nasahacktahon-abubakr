@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TerraMind AI — landing on measured terrain</title>
+<!-- Hero for the landing page: a lander descends onto the REAL 25 km window (NASA LOLA / MOLA / SRTM via /api/tm).
+     Embed with <iframe src="./hero.html?src=/api/tm/terrain/site/mouton&body=moon">. Never procedural terrain. -->
+<style>
+:root{color-scheme:dark}
+html,body{margin:0;height:100%;background:#05070b;color:#eeeae1;font-family:'DM Sans',system-ui,sans-serif;overflow:hidden}
+canvas{display:block;width:100%;height:100%}
+.hud{position:absolute;left:18px;bottom:16px;font:11px/1.6 'IBM Plex Mono',ui-monospace,monospace;color:#c9d0c3;letter-spacing:.3px;text-shadow:0 1px 4px #000}
+.hud b{display:block;font:600 14px 'Space Grotesk','DM Sans',sans-serif;letter-spacing:-.2px;color:#fff;margin-bottom:2px}
+.pill{position:absolute;right:16px;top:14px;font:10px 'IBM Plex Mono',ui-monospace,monospace;letter-spacing:1.4px;text-transform:uppercase;padding:7px 10px;border:1px solid #dce6b266;border-radius:4px;background:#0a0f0ccc;color:#dce6b2}
+.legend{position:absolute;right:16px;bottom:16px;display:flex;gap:12px;align-items:center;font:10px 'IBM Plex Mono',ui-monospace,monospace;color:#c9d0c3;padding:8px 10px;background:#0a0f0ccc;border:1px solid #ffffff14;border-radius:4px;opacity:0;transition:opacity 1.2s}
+.legend.on{opacity:1}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.msg{position:absolute;inset:0;display:grid;place-items:center;font:12px 'IBM Plex Mono',ui-monospace,monospace;color:#919b8e;letter-spacing:1px}
+@media(max-width:600px){.legend{left:16px;right:auto;bottom:86px;flex-wrap:wrap;gap:8px}.hud{bottom:14px;font-size:10px}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js"}}</script>
+</head>
+<body>
+<div class="msg" id="msg">LOADING MEASURED TERRAIN…</div>
+<div class="pill">Measured DEM · concept spacecraft</div>
+<div style="position:absolute;z-index:20;left:18px;top:14px;padding:6px 9px;border:1px solid #dce7ee70;border-radius:3px;background:#081019ed;color:#e8f1f5;font:10px monospace">AI-generated</div>
+<div class="legend" id="legend"><span><i style="background:#9fdc7c"></i>Flat &lt; 5°</span><span><i style="background:#e7b779"></i>Caution 5–15°</span><span><i style="background:#d9644a"></i>Hazard &gt; 15°</span><span style="opacity:.7">computed from NASA elevation data</span></div>
+<div class="hud" id="hud"></div>
+<script type="module">
+import * as THREE from 'three';
+const q=new URLSearchParams(location.search);
+const SRC=q.get('src')||'/api/tm/terrain/site/mouton', BODY=q.get('body')||'moon', EXAG=Number(q.get('exag')||2);
+const PAL={moon:{ground:0x8d8a84,sky:0x05070b,fog:0x0a0c10,key:0xfff2dc,label:'MOON'},mars:{ground:0xa5603c,sky:0x0b0607,fog:0x1a0d08,key:0xffd9b3,label:'MARS'},earth:{ground:0xb59a6a,sky:0x06090d,fog:0x0d1115,key:0xfff4e0,label:'EARTH'}};
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const msg=document.getElementById('msg'),hud=document.getElementById('hud'),legend=document.getElementById('legend');
+let renderer,scene,camera,terrain,lander,glow,overlayAttr,baseColors,overlayColors,t0,data,unit,target,running=false;
+
+async function load(url=SRC,body=BODY){
+  running=false;msg.style.display='grid';msg.textContent='LOADING MEASURED TERRAIN…';
+  try{const r=await fetch(url);if(!r.ok)throw new Error(r.status);data=await r.json();if(!data.measured_dem)throw new Error('not measured')}
+  catch(e){msg.textContent='TERRAIN DATA UNAVAILABLE — START THE TERRAMIND SERVER';return}
+  build(body);msg.style.display='none';running=true;t0=performance.now();
+}
+function build(body){
+  const p=PAL[body]||PAL.moon;
+  if(!renderer){renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;document.body.prepend(renderer.domElement);addEventListener('resize',resize)}
+  scene=new THREE.Scene();scene.background=new THREE.Color(p.sky);scene.fog=new THREE.Fog(p.fog,90,260);
+  camera=new THREE.PerspectiveCamera(42,1,.1,1000);resize();
+  // stars
+  const sg=new THREE.BufferGeometry(),sp=new Float32Array(1800*3);for(let i=0;i<sp.length;i++)sp[i]=(Math.random()-.5)*900;sg.setAttribute('position',new THREE.BufferAttribute(sp,3));
+  scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:.9,sizeAttenuation:true,transparent:true,opacity:.7})));
+  scene.add(new THREE.HemisphereLight(0xffffff,0x202020,.35));
+  const key=new THREE.DirectionalLight(p.key,2.4);key.position.set(-120,38,60);key.castShadow=true;key.shadow.mapSize.set(2048,2048);Object.assign(key.shadow.camera,{left:-80,right:80,top:80,bottom:-80,near:1,far:400});scene.add(key);
+  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  // terrain from the real DEM (100 units = window width)
+  const {width:w,height:h,pixel_size_m:px,elevations:el,median_elevation_m:med,roi_mask:ok,layers}=data;
+  unit=100/(Math.max(w,h)*px);
+  const g=new THREE.PlaneGeometry(w*px*unit,h*px*unit,w-1,h-1);g.rotateX(-Math.PI/2);
+  const pos=g.attributes.position,ground=new THREE.Color(p.ground);baseColors=new Float32Array(w*h*3);overlayColors=new Float32Array(w*h*3);
+  const c=new THREE.Color(),flat=new THREE.Color(0x9fdc7c),caut=new THREE.Color(0xe7b779),haz=new THREE.Color(0xd9644a);
+  for(let i=0;i<w*h;i++){const e=el[i];pos.setY(i,((e??med)-med)*unit*EXAG);
+    const grain=.9+Math.random()*.2;c.copy(ground).multiplyScalar(grain);baseColors.set([c.r,c.g,c.b],i*3);
+    const s=layers.slope_deg[i];const oc=s===null?c:c.clone().lerp(s<5?flat:s<15?caut:haz,.55);overlayColors.set([oc.r,oc.g,oc.b],i*3)}
+  g.setAttribute('color',new THREE.BufferAttribute(baseColors.slice(),3));overlayAttr=g.attributes.color;g.computeVertexNormals();
+  terrain=new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.96,metalness:0,flatShading:false}));terrain.receiveShadow=true;terrain.castShadow=true;scene.add(terrain);
+  // landing target: flattest cell within the central 5 km
+  let best=-1,bs=1e9,R=2500/px;for(let r=0;r<h;r++)for(let col=0;col<w;col++){const i=r*w+col;if(!ok[i]||layers.slope_deg[i]===null)continue;if(Math.hypot(col-(w-1)/2,r-(h-1)/2)>R)continue;if(layers.slope_deg[i]<bs){bs=layers.slope_deg[i];best=i}}
+  if(best<0)best=Math.floor(w*h/2);target=new THREE.Vector3(pos.getX(best),pos.getY(best),pos.getZ(best));
+  // lander from primitives
+  lander=new THREE.Group();const m=new THREE.MeshStandardMaterial({color:0xd8d6cf,metalness:.6,roughness:.4});
+  const body3=new THREE.Mesh(new THREE.CylinderGeometry(1.4,1.7,1.6,8),m);body3.castShadow=true;lander.add(body3);
+  const top=new THREE.Mesh(new THREE.ConeGeometry(1.4,1.1,8),m);top.position.y=1.35;lander.add(top);
+  const gold=new THREE.MeshStandardMaterial({color:0xc9a24a,metalness:.8,roughness:.3});
+  for(let k=0;k<4;k++){const a=k*Math.PI/2+Math.PI/4;const leg=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,2.4),gold);leg.position.set(Math.cos(a)*1.6,-1.2,Math.sin(a)*1.6);leg.rotation.z=Math.cos(a)*.5;leg.rotation.x=-Math.sin(a)*.5;lander.add(leg);
+    const pad=new THREE.Mesh(new THREE.CylinderGeometry(.35,.35,.1,10),gold);pad.position.set(Math.cos(a)*2.2,-2.3,Math.sin(a)*2.2);lander.add(pad)}
+  const tex=new THREE.CanvasTexture(flame());glow=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,color:0xffc27a,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));glow.scale.set(3,5,1);glow.position.y=-2.2;lander.add(glow);
+  const light=new THREE.PointLight(0xffb060,0,40,2);light.position.y=-2;lander.add(light);lander.userData.light=light;
+  lander.scale.setScalar(.45);scene.add(lander);legend.classList.remove('on');
+  hud.innerHTML=`<b>${p.label} · ${data.center.lat.toFixed(3)}°, ${data.center.lon.toFixed(3)}°</b>${(data.radius_km*2).toFixed(0)} km window · ${px} m grid · landing on measured terrain<br>${data.provenance?.dataset??''}`;
+  if(reduced){lander.position.copy(target).add(new THREE.Vector3(0,.4,0));camera.position.set(target.x+28,target.y+14,target.z+30);camera.lookAt(target);overlayAttr.copyArray(overlayColors);overlayAttr.needsUpdate=true;legend.classList.add('on');renderer.render(scene,camera)}
+}
+function flame(){const c=document.createElement('canvas');c.width=64;c.height=128;const x=c.getContext('2d');const g=x.createRadialGradient(32,30,2,32,50,60);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.3,'rgba(255,190,110,.8)');g.addColorStop(1,'rgba(255,120,40,0)');x.fillStyle=g;x.fillRect(0,0,64,128);return c}
+function resize(){if(!renderer)return;renderer.setSize(innerWidth,innerHeight,false);if(camera){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}}
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+function frame(now){requestAnimationFrame(frame);if(!running||reduced)return;
+  const T=(now-t0)/1000,CYCLE=14,t=T%CYCLE,d=Math.min(t/8,1),e=ease(d);     // 8 s descent, 3 s hold, 3 s pull-back
+  const start=new THREE.Vector3(target.x-4,target.y+60,target.z+6);
+  lander.position.lerpVectors(start,target.clone().add(new THREE.Vector3(0,1.15,0)),e);
+  lander.rotation.y=T*.15;const thrust=d<1?.8+.2*Math.sin(now*.03):0;glow.material.opacity=thrust;glow.scale.set(3*(0.8+thrust*.4),5*(0.6+thrust*.6),1);lander.userData.light.intensity=thrust*18;
+  if(d>=1&&t<11){const k=(t-8)/3;glow.material.opacity=Math.max(0,.6-k)}
+  // camera: slow orbit, ending low over the pad
+  const ang=T*.12,dist=36-26*e,hgt=30-25*e;
+  camera.position.set(target.x+Math.cos(ang)*dist,Math.max(target.y+hgt,lander.position.y-6),target.z+Math.sin(ang)*dist);
+  camera.lookAt(lander.position.x,(lander.position.y*2+target.y)/3,lander.position.z);
+  // landing-safety overlay fades in during descent
+  const mix=Math.min(Math.max((d-.35)/.5,0),1);const arr=overlayAttr.array;for(let i=0;i<arr.length;i++)arr[i]=baseColors[i]+(overlayColors[i]-baseColors[i])*mix;overlayAttr.needsUpdate=true;
+  legend.classList.toggle('on',mix>.5);
+  renderer.render(scene,camera)}
+requestAnimationFrame(frame);
+window.TerraMindHero={load};
+load();
+</script>
+</body>
+</html>

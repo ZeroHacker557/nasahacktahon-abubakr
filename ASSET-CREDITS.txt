@@ -1,0 +1,84 @@
+TerraMind AI - third-party visualization assets
+Downloaded: 2026-11-14
+
+These assets are visualization materials. They are not the scientific DEMs,
+coordinate reference data, or inputs used to calculate terrain similarity.
+Surface microdetail is illustrative and must not be presented as measured
+Mars or Ustyurt geology. No generated UI screenshots are used as scene assets.
+
+POLY HAVEN - CC0 1.0 UNIVERSAL
+License: https://polyhaven.com/license
+License text: https://creativecommons.org/publicdomain/zero/1.0/
+Author: Rob Tuytel
+
+1. Sandstone Cracks
+Asset page: https://polyhaven.com/a/sandstone_cracks
+API manifest: https://api.polyhaven.com/files/sandstone_cracks
+Original physical tile width: 2 metres.
+Downloaded unmodified 2K JPEG maps:
+  public/textures/terrain/rock-color.jpg
+    sandstone_cracks_diff_2k.jpg - diffuse/albedo, sRGB
+  public/textures/terrain/rock-normal.jpg
+    sandstone_cracks_nor_gl_2k.jpg - OpenGL tangent-space normal, non-color
+  public/textures/terrain/rock-roughness.jpg
+    sandstone_cracks_rough_2k.jpg - roughness, non-color
+Download base:
+  https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/sandstone_cracks/
+
+2. Coast Sand 01
+Asset page: https://polyhaven.com/a/coast_sand_01
+API manifest: https://api.polyhaven.com/files/coast_sand_01
+Original physical tile width: 15 metres.
+Downloaded unmodified 2K JPEG maps:
+  public/textures/terrain/sand-color.jpg
+    coast_sand_01_diff_2k.jpg - diffuse/albedo, sRGB
+  public/textures/terrain/sand-normal.jpg
+    coast_sand_01_nor_gl_2k.jpg - OpenGL tangent-space normal, non-color
+  public/textures/terrain/sand-roughness.jpg
+    coast_sand_01_rough_2k.jpg - roughness, non-color
+Download base:
+  https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/coast_sand_01/
+
+SOLAR SYSTEM SCOPE / INOVE - CREATIVE COMMONS ATTRIBUTION 4.0 INTERNATIONAL
+Asset page and source attribution: https://www.solarsystemscope.com/textures/
+License: https://creativecommons.org/licenses/by/4.0/
+Required credit: Planet textures: Solar System Scope (CC BY 4.0).
+Link the credit to the asset page and license in the application credits.
+
+Source notes: The publisher describes these equirectangular maps as based on
+NASA elevation and imagery, with tuned color/saturation and fictional terrain
+in unmapped gaps. They are visualization products, not unmodified NASA data.
+No NASA endorsement is implied.
+
+  public/textures/planets/earth-day.jpg
+    Source: https://www.solarsystemscope.com/textures/download/8k_earth_daymap.jpg
+    8192 x 4096; downloaded unchanged; albedo/day color, sRGB.
+
+  public/textures/planets/earth-night.jpg
+    Source: https://www.solarsystemscope.com/textures/download/2k_earth_nightmap.jpg
+    2048 x 1024; downloaded unchanged; night emission color, sRGB.
+
+  public/textures/planets/earth-clouds.png
+    Source: https://www.solarsystemscope.com/textures/download/2k_earth_clouds.jpg
+    2048 x 1024; JPEG converted to lossless PNG without resizing.
+    Grayscale RGB cloud mask; the source has no alpha channel.
+    Use as alphaMap with a white transparent material, not as an RGBA image.
+
+  public/textures/planets/earth-normal.jpg
+    Source: https://www.solarsystemscope.com/textures/download/2k_earth_normal_map.tif
+    2048 x 1024; TIFF converted to JPEG at quality 95 without resizing.
+    Tangent-space RGB normal data; use non-color interpretation.
+
+  public/textures/planets/earth-specular.jpg
+    Source: https://www.solarsystemscope.com/textures/download/2k_earth_specular_map.tif
+    2048 x 1024; TIFF converted to JPEG at quality 95 without resizing.
+    Grayscale specular-intensity data, not roughness or metalness.
+
+  public/textures/planets/mars-color.jpg
+    Source: https://www.solarsystemscope.com/textures/download/8k_mars.jpg
+    8192 x 4096; downloaded unchanged; planetary albedo/color, sRGB.
+
+All filenames were renamed for local application use. Material tinting,
+lighting, and shader blending in the application may change their appearance.
+
+Performance derivatives: balanced planet maps and UI thumbnail images may be resized/compressed from the originals listed above; attribution and license remain unchanged.
